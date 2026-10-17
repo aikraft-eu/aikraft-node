@@ -1,0 +1,72 @@
+{
+  "name": "aikraft",
+  "version": "0.1.0",
+  "description": "Privacy-first monitoring for LLM apps: sends aggregate metrics to Aikraft, never prompts or responses.",
+  "keywords": [
+    "llm",
+    "monitoring",
+    "observability",
+    "eu-ai-act",
+    "compliance",
+    "anthropic",
+    "openai"
+  ],
+  "homepage": "https://aikraft.eu",
+  "bugs": {
+    "url": "https://github.com/aikraft-eu/aikraft-node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aikraft-eu/aikraft-node.git"
+  },
+  "license": "Apache-2.0",
+  "author": "aikraft <support@aikraft.eu>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "test": "vitest run",
+    "check:package": "publint && attw --pack . --profile node16",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@biomejs/biome": "^2.5.15",
+    "@types/node": "^26.6.5",
+    "openai": "^7.36.0",
+    "publint": "^0.3.25",
+    "tsup": "^9.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

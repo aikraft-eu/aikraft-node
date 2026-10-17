@@ -1,0 +1,60 @@
+name: publish
+on:
+  release:
+    types: [published]   # GitHub release -> npm
+  workflow_dispatch:     # manual run -> dry run by default
+    inputs:
+      dry_run:
+        description: Pack and validate only, don't publish
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Must match the "Environment name" of the trusted publisher on npmjs.com (package settings).
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write    # trusted publishing and provenance; no npm token stored anywhere
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Trusted publishing needs npm >= 11.5.1
+        run: npm install -g npm@^11.5.1
+      - name: Release tag must match the package version
+        if: github.event_name == 'release'
+        run: |
+          expected="v$(node -p 'require("./package.json").version')"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version $expected" >&2
+            exit 1
+          fi
+      - name: Manual publishes only from main
+        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run && github.ref != 'refs/heads/main'
+        run: |
+          echo "Publish to npm from main (got $GITHUB_REF)" >&2
+          exit 1
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:package
+      - name: Smoke-test the packed tarball
+        run: |
+          npm pack
+          mkdir "$RUNNER_TEMP/smoke" && cd "$RUNNER_TEMP/smoke"
+          npm init -y > /dev/null
+          npm install "$GITHUB_WORKSPACE"/aikraft-*.tgz
+          node "$GITHUB_WORKSPACE/scripts/smoke.mjs"
+          rm "$GITHUB_WORKSPACE"/aikraft-*.tgz
+      - name: Publish
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          # Pre-releases (0.2.0-beta.1) go to the "next" dist-tag so `npm install aikraft` stays on stable.
+          case "$version" in *-*) tag=next ;; *) tag=latest ;; esac
+          npm publish --tag "$tag" ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
