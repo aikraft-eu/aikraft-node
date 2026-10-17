@@ -1,6 +1,6 @@
 {
   "name": "aikraft",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Privacy-first monitoring for LLM apps: sends aggregate metrics to Aikraft, never prompts or responses.",
   "keywords": [
     "llm",

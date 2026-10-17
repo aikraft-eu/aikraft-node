@@ -45,7 +45,7 @@ A full payload looks like this:
 {
   "schema": "aikraft.llm.v1",
   "batch_id": "3f0c…",
-  "sdk": {"name": "aikraft-node", "version": "0.1.0"},
+  "sdk": {"name": "aikraft-node", "version": "0.1.1"},
   "windows": [{
     "start": "2026-10-08T14:00:00+00:00", "end": "2026-10-08T14:01:00+00:00",
     "model": "claude-sonnet-5-5", "tag": "support-bot", "calls": 128,
